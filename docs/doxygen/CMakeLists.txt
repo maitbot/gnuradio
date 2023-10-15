@@ -13,9 +13,18 @@ file(TO_NATIVE_PATH ${PROJECT_BINARY_DIR} top_builddir)
 file(TO_NATIVE_PATH ${PROJECT_SOURCE_DIR} abs_top_srcdir)
 file(TO_NATIVE_PATH ${PROJECT_BINARY_DIR} abs_top_builddir)
 
-set(HAVE_DOT ${DOXYGEN_DOT_FOUND})
+find_package(LATEX COMPONENTS PDFLATEX)
+option(ENABLE_DOXYGEN_PDF "Build Doxygen PDF" OFF)
+
+if(ENABLE_DOXYGEN_PDF AND LATEX_FOUND)
+    set(HAVE_DOT NO) # Otherwise latex fails on large diagrams
+    set(enable_pdf_docs YES)
+else()
+    set(HAVE_DOT ${DOXYGEN_DOT_FOUND})
+    set(enable_pdf_docs NO)
+endif()
+
 set(enable_html_docs YES)
-set(enable_latex_docs NO)
 set(enable_xml_docs YES)
 
 if(MATHJAX2_FOUND)
@@ -35,6 +44,7 @@ set(BUILT_DIRS ${CMAKE_CURRENT_BINARY_DIR}/xml ${CMAKE_CURRENT_BINARY_DIR}/html)
 ########################################################################
 # Make and install doxygen docs
 ########################################################################
+gr_append_subcomponent("HTML Docs")
 add_custom_command(
     OUTPUT ${BUILT_DIRS}
     COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
@@ -44,7 +54,8 @@ add_custom_command(
 
 add_custom_target(doxygen_target ALL DEPENDS ${BUILT_DIRS})
 
-if(ENABLE_DOXYGEN)
+if(enable_xml_docs)
+    gr_append_subcomponent("XML Docs")
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/gnuradio_docstrings.json
         COMMAND
@@ -56,6 +67,25 @@ if(ENABLE_DOXYGEN)
 
     add_custom_target(gnuradio_docstrings ALL
                       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/gnuradio_docstrings.json)
-endif(ENABLE_DOXYGEN)
+endif(enable_xml_docs)
 
 install(DIRECTORY ${BUILT_DIRS} DESTINATION ${GR_PKG_DOC_DIR})
+
+########################################################################
+# Make and install doxygen pdf - without HAVE_DOT, only via latex
+########################################################################
+if(enable_pdf_docs)
+    gr_append_subcomponent("PDF Docs")
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/latex/refman.pdf
+        COMMAND make
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/latex
+        DEPENDS doxygen_target
+        COMMENT "Generating PDF documentation with latex")
+
+        add_custom_target(doxygen_pdf_target ALL
+		          DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/latex/refman.pdf)
+
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/latex/refman.pdf
+	        DESTINATION ${GR_PKG_DOC_DIR})
+endif()

@@ -40,7 +40,7 @@ public:
      * \param ampl the standard deviation of a 1-d noise process. If
      *        this is the complex source, this parameter is split
      *        among the real and imaginary parts:
-     *        <pre>(ampl/sqrt(2))x + j(ampl/sqrt(2))y</pre>
+     *        (ampl/sqrt(2))x + j(ampl/sqrt(2))y
      * \param seed seed for random generators. seed = 0 initializes
      *        the random number generator with the system time.
      */

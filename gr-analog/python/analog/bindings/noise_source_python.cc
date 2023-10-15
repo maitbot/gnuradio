@@ -14,8 +14,8 @@
 /* If manual edits are made, the following tags should be modified accordingly.    */
 /* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
 /* BINDTOOL_USE_PYGCCXML(0)                                                        */
-/* BINDTOOL_HEADER_FILE(noise_source.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(1225d21c7d3f1525c34938764ac179bf)                     */
+/* BINDTOOL_HEADER_FILE(noise_source.h)                                            */
+/* BINDTOOL_HEADER_FILE_HASH(5711fb85be9977ff5de33e6788af1d0f)                     */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
